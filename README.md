@@ -1,8 +1,9 @@
 # 💼 JobTrack Live — Interactive Job Application Tracker
 
-### 🔗 **Live Website**: [https://abhishek-end.github.io/job-tracker/](https://abhishek-end.github.io/job-tracker/)
+### 🔗 **Live Cloud App (Multi-Device Real-Time Sync)**: [https://job-tracker-vguz.onrender.com](https://job-tracker-vguz.onrender.com)
+### 🔗 **GitHub Pages Mirror**: [https://abhishek-end.github.io/job-tracker/](https://abhishek-end.github.io/job-tracker/)
 
-An interactive web job application tracker designed to work instantly in your browser on **mobile phones, tablets, and desktop computers** with **no login and no setup required**.
+An interactive web job application tracker designed to work instantly in your browser on **mobile phones, tablets, and desktop computers** with **no login and no setup required**. All your devices sync in real time across the cloud!
 
 ---
 
