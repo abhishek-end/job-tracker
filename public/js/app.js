@@ -162,11 +162,13 @@ async function initApp() {
 }
 
 const STORAGE_KEY = 'jobtrack_persistent_store';
+const INIT_KEY = 'jobtrack_initialized_flag';
 
 // Local Storage Helper
 function saveToStorage() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.jobs));
+    localStorage.setItem(INIT_KEY, 'true');
   } catch (err) {
     console.warn('Storage save failed:', err);
   }
@@ -174,12 +176,16 @@ function saveToStorage() {
 
 function loadFromStorage() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw !== null) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        return parsed;
+    const isInit = localStorage.getItem(INIT_KEY);
+    if (isInit === 'true') {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw !== null) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
       }
+      return [];
     }
   } catch (err) {
     console.warn('Storage load failed:', err);
@@ -187,32 +193,34 @@ function loadFromStorage() {
   return null;
 }
 
-// Load applications (Prioritizes user's saved data so refreshes never revert edits)
+// Load applications (Strictly preserves user state across refreshes)
 async function fetchJobs() {
   const savedLocal = loadFromStorage();
 
   if (savedLocal !== null) {
-    // User has existing data (edits, additions, deletions) -> preserve it!
+    // User has used the app before: ALWAYS use their saved state!
     state.jobs = savedLocal;
     renderAll();
   } else {
-    // First time ever opening the app -> initialize with default seed data
+    // Brand new first visit: populate seed data and mark as initialized
     state.jobs = [...defaultSeedJobs];
     saveToStorage();
     renderAll();
   }
 
-  // If running locally with Node server, sync in background
+  // If running locally with Node server on localhost, sync in background
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     try {
       const res = await fetch('/api/jobs');
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.jobs) && data.jobs.length > 0) {
-          if (savedLocal === null) {
-            state.jobs = data.jobs;
-            saveToStorage();
-            renderAll();
+        if (data.jobs && data.jobs.length === 0 && state.jobs.length > 0) {
+          for (const j of state.jobs) {
+            await fetch('/api/jobs', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(j)
+            });
           }
         }
       }
