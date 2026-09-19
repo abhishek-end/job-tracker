@@ -193,38 +193,39 @@ function loadFromStorage() {
   return null;
 }
 
-// Load applications (Strictly preserves user state across refreshes)
+// Load applications (Strictly preserves user state and syncs with backend server if available)
 async function fetchJobs() {
-  const savedLocal = loadFromStorage();
+  let backendLoaded = false;
 
-  if (savedLocal !== null) {
-    // User has used the app before: ALWAYS use their saved state!
-    state.jobs = savedLocal;
-    renderAll();
-  } else {
-    // Brand new first visit: populate seed data and mark as initialized
-    state.jobs = [...defaultSeedJobs];
-    saveToStorage();
-    renderAll();
+  // 1. Try to fetch from server API (works on localhost, LAN IP 192.168.x.x, or hosted cloud backend)
+  try {
+    const res = await fetch('/api/jobs', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.jobs)) {
+        state.jobs = data.jobs;
+        saveToStorage();
+        renderAll();
+        backendLoaded = true;
+      }
+    }
+  } catch (_) {
+    // Backend not reachable (e.g. running standalone on GitHub Pages or offline)
   }
 
-  // If running locally with Node server on localhost, sync in background
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    try {
-      const res = await fetch('/api/jobs');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.jobs && data.jobs.length === 0 && state.jobs.length > 0) {
-          for (const j of state.jobs) {
-            await fetch('/api/jobs', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(j)
-            });
-          }
-        }
-      }
-    } catch (_) {}
+  // 2. If backend is not available, use local device storage
+  if (!backendLoaded) {
+    const savedLocal = loadFromStorage();
+    if (savedLocal !== null) {
+      // User has state saved on this device
+      state.jobs = savedLocal;
+      renderAll();
+    } else {
+      // Brand new visit in standalone mode: load seed data
+      state.jobs = [...defaultSeedJobs];
+      saveToStorage();
+      renderAll();
+    }
   }
 }
 
@@ -285,6 +286,30 @@ function setupEventSource() {
         state.selectedIds.delete(id);
         saveToStorage();
         renderAll();
+      } catch (_) {}
+    });
+
+    eventSource.addEventListener('bulk_deleted', (e) => {
+      try {
+        const { ids } = JSON.parse(e.data);
+        if (Array.isArray(ids)) {
+          const idSet = new Set(ids);
+          state.jobs = state.jobs.filter(j => !idSet.has(j.id));
+          ids.forEach(id => state.selectedIds.delete(id));
+          saveToStorage();
+          renderAll();
+        }
+      } catch (_) {}
+    });
+
+    eventSource.addEventListener('jobs_reset', (e) => {
+      try {
+        const { jobs } = JSON.parse(e.data);
+        if (Array.isArray(jobs)) {
+          state.jobs = jobs;
+          saveToStorage();
+          renderAll();
+        }
       } catch (_) {}
     });
 
