@@ -1256,6 +1256,17 @@ function showToast(message, type = 'info', action = null) {
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
 
+  const iconSpan = document.createElement('span');
+  iconSpan.className = 'toast-icon';
+  if (type === 'danger') {
+    iconSpan.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>';
+  } else if (type === 'success') {
+    iconSpan.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+  } else {
+    iconSpan.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+  }
+  toast.appendChild(iconSpan);
+
   const messageSpan = document.createElement('span');
   messageSpan.className = 'toast-message';
   messageSpan.textContent = message;
@@ -1272,13 +1283,14 @@ function showToast(message, type = 'info', action = null) {
     toast.appendChild(actionBtn);
   }
 
-  elements.toastContainer.appendChild(toast);
+  elements.toastContainer.prepend(toast);
 
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
+    toast.style.transform = 'translateY(-12px)';
+    toast.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+    setTimeout(() => toast.remove(), 260);
+  }, 4500);
 }
 
 // Boot

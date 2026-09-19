@@ -1192,32 +1192,40 @@ input[type="checkbox"] {
    ========================================================================== */
 .toast-container {
   position: fixed;
-  bottom: 1.5rem;
+  top: 1.5rem;
   right: 1.5rem;
+  bottom: auto;
+  left: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  z-index: 2000;
+  align-items: flex-end;
+  gap: 0.65rem;
+  z-index: 9999;
+  pointer-events: none;
 }
 
 .toast {
-  background: var(--bg-surface);
+  pointer-events: auto;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-width: 260px;
-  max-width: 360px;
-  animation: slide-in 0.25s ease-out;
+  min-width: 280px;
+  max-width: 400px;
+  animation: toast-slide-down 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-@keyframes slide-in {
+@keyframes toast-slide-down {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(-16px);
   }
   to {
     opacity: 1;
@@ -1225,24 +1233,67 @@ input[type="checkbox"] {
   }
 }
 
-.toast.toast-success { border-left: 3px solid #10b981; }
-.toast.toast-danger { border-left: 3px solid #ef4444; }
-.toast.toast-info { border-left: 3px solid #3b82f6; }
+.toast.toast-success {
+  border-left: 4px solid #10b981;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(16, 185, 129, 0.25);
+}
+
+.toast.toast-danger {
+  border-left: 4px solid #ef4444;
+  background: rgba(26, 14, 18, 0.95);
+  border-color: rgba(239, 68, 68, 0.45);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 20px -2px rgba(239, 68, 68, 0.35);
+}
+
+.toast.toast-info {
+  border-left: 4px solid #3b82f6;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(59, 130, 246, 0.25);
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 
 .toast-message {
-  font-size: 0.8rem;
+  font-size: 0.83rem;
   color: var(--text-primary);
   flex-grow: 1;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .toast-action {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--accent-primary);
-  background: transparent;
-  border: none;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.toast.toast-danger .toast-action {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.toast-action:hover {
+  background: rgba(59, 130, 246, 0.35);
+  color: #fff;
+}
+
+.toast.toast-danger .toast-action:hover {
+  background: rgba(239, 68, 68, 0.45);
+  color: #fff;
 }
 
 /* ==========================================================================
@@ -1379,6 +1430,24 @@ input[type="checkbox"] {
     max-width: 95vw;
     margin: 0.5rem;
   }
+
+  /* Mobile: Show toast / delete / error message on TOP CENTER */
+  .toast-container {
+    top: 1rem;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translateX(-50%);
+    width: calc(100% - 2rem);
+    max-width: 440px;
+    align-items: center;
+  }
+
+  .toast {
+    min-width: 100%;
+    max-width: 100%;
+    width: 100%;
+  }
 }
 
 /* Mobile Phones (<= 480px) */
@@ -1410,13 +1479,20 @@ input[type="checkbox"] {
   }
 
   .toast-container {
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
+    top: 0.75rem;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translateX(-50%);
+    width: calc(100% - 1.25rem);
+    max-width: 100%;
+    align-items: center;
   }
 
   .toast {
     min-width: 100%;
     max-width: 100%;
+    width: 100%;
+    padding: 0.7rem 0.85rem;
   }
 }
