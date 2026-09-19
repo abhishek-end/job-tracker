@@ -1,22 +1,22 @@
-# JobTrack Live — Collaborative Real-Time Job Application Tracker
+# 💼 JobTrack Live — Interactive Job Application Tracker
 
-An interactive web job tracker with live percentage stats, status breakdown overview bar, direct inline table editing, and zero-login real-time multi-user collaboration.
+### 🔗 **Live Website**: [https://abhishek-end.github.io/job-tracker/](https://abhishek-end.github.io/job-tracker/)
 
-## Features
+An interactive web job application tracker designed to work instantly in your browser on **mobile phones, tablets, and desktop computers** with **no login and no setup required**.
+
+---
+
+## ✨ Features
 - **Core Columns**: Company, Role, Applied Date, Source, Status, Contact/Recruiter, Follow-up Date, Notes (+ Actions).
-- **Color-Coded Status Pills**: Applied (Blue), Referral (Purple), Interviewing (Amber), Selected (Green), Rejected (Red).
-- **Live Stats & Breakdown Bar**: Dynamic percentage calculations with multi-segment visual progress overview.
-- **Direct Inline Table Editing**: Edit cells in place, quick top add row, and instant 1-click status switcher.
-- **Real-Time Collaboration**: Multi-user instant synchronization with Server-Sent Events (SSE) and persistent JSON storage. No login required.
-- **Responsive**: Clean layout across Desktop, Tablets/iPads, and Mobile devices.
-
-## Getting Started
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the server:
-   ```bash
-   npm start
-   ```
-3. Open `http://localhost:3000` in your browser.
+- **Color-Coded Status Pills**:
+  - 🔵 **Applied** (Blue)
+  - 🟣 **Referral** (Purple)
+  - 🟠 **Interviewing** (Amber)
+  - 🟢 **Selected** (Green)
+  - 🔴 **Rejected** (Red)
+- **Interactive 1-Click Status Switching**: Click any status pill to switch its status instantly.
+- **Live Percentage Stats & Overview Bar**: Dynamic percentage calculations with multi-segment visual progress overview.
+- **Direct Table Manipulation**: Add new jobs via the top quick-add row, inline-edit any cell, and delete rows with 1 click (plus Undo).
+- **Text Truncation**: Automatic clean `...` ellipsis for long company names, roles, contacts, and notes.
+- **Fully Responsive**: Optimized for phones, iPads/tablets, and desktop screens.
+- **Data Persistence & Export**: Auto-saves your applications in your browser and lets you export everything to CSV with 1 click.
