@@ -161,54 +161,63 @@ async function initApp() {
   bindEvents();
 }
 
+const STORAGE_KEY = 'jobtrack_persistent_store';
+
 // Local Storage Helper
 function saveToStorage() {
   try {
-    localStorage.setItem('jobtrack_jobs_v1', JSON.stringify(state.jobs));
-  } catch (_) {}
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.jobs));
+  } catch (err) {
+    console.warn('Storage save failed:', err);
+  }
 }
 
 function loadFromStorage() {
   try {
-    const data = localStorage.getItem('jobtrack_jobs_v1');
-    return data ? JSON.parse(data) : null;
-  } catch (_) {
-    return null;
-  }
-}
-
-// Load applications (Hybrid: Server API with localStorage fallback)
-async function fetchJobs() {
-  let loaded = false;
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 1500);
-    const res = await fetch('/api/jobs', { signal: controller.signal });
-    clearTimeout(timeout);
-    
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && Array.isArray(data.jobs) && data.jobs.length > 0) {
-        state.jobs = data.jobs;
-        saveToStorage();
-        loaded = true;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw !== null) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed;
       }
     }
-  } catch (_) {
-    state.isStandalone = true;
+  } catch (err) {
+    console.warn('Storage load failed:', err);
+  }
+  return null;
+}
+
+// Load applications (Prioritizes user's saved data so refreshes never revert edits)
+async function fetchJobs() {
+  const savedLocal = loadFromStorage();
+
+  if (savedLocal !== null) {
+    // User has existing data (edits, additions, deletions) -> preserve it!
+    state.jobs = savedLocal;
+    renderAll();
+  } else {
+    // First time ever opening the app -> initialize with default seed data
+    state.jobs = [...defaultSeedJobs];
+    saveToStorage();
+    renderAll();
   }
 
-  if (!loaded) {
-    const local = loadFromStorage();
-    if (local && Array.isArray(local) && local.length > 0) {
-      state.jobs = local;
-    } else {
-      state.jobs = [...defaultSeedJobs];
-      saveToStorage();
-    }
+  // If running locally with Node server, sync in background
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    try {
+      const res = await fetch('/api/jobs');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.jobs) && data.jobs.length > 0) {
+          if (savedLocal === null) {
+            state.jobs = data.jobs;
+            saveToStorage();
+            renderAll();
+          }
+        }
+      }
+    } catch (_) {}
   }
-
-  renderAll();
 }
 
 // Real-Time Server-Sent Events setup

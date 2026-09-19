@@ -199,7 +199,7 @@ app.post('/api/jobs', (req, res) => {
   const finalStatus = validStatuses.includes(status) ? status : 'Applied';
 
   const newJob = {
-    id: `job-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    id: req.body.id || `job-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
     company: company.trim(),
     role: (role || 'Software Engineer').trim(),
     appliedDate: appliedDate || new Date().toISOString().split('T')[0],
