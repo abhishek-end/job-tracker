@@ -1,0 +1,14 @@
+{
+  "name": "job-tracker-collaborative",
+  "version": "1.0.0",
+  "description": "Interactive web job tracker with live stats, status breakdown bar, direct table editing, and zero-login real-time collaboration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
