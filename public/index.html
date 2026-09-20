@@ -241,7 +241,18 @@
                     <input type="text" id="newCompany" placeholder="Company" class="inline-add-input" required>
                   </td>
                   <td class="td-role">
-                    <input type="text" id="newRole" placeholder="Role" class="inline-add-input">
+                    <div class="role-select-wrapper">
+                      <select id="newRole" class="inline-add-select role-select">
+                        <option value="Manual Tester">Manual Tester</option>
+                        <option value="Automation Tester">Automation Tester</option>
+                        <option value="Both Functional">Both Functional</option>
+                        <option value="API Tester">API Tester</option>
+                        <option value="QA / SDET">QA / SDET</option>
+                        <option value="Software Engineer">Software Engineer</option>
+                        <option value="Other">Other (Custom)...</option>
+                      </select>
+                      <input type="text" id="newRoleCustom" placeholder="Custom role..." class="inline-add-input role-custom-input" style="display: none;">
+                    </div>
                   </td>
                   <td class="td-applied">
                     <input type="date" id="newAppliedDate" class="inline-add-input">
@@ -266,7 +277,7 @@
                     </select>
                   </td>
                   <td class="td-contact">
-                    <input type="text" id="newContact" placeholder="Contact" class="inline-add-input">
+                    <input type="tel" id="newContact" placeholder="Contact (Numbers only)" class="inline-add-input" inputmode="numeric" pattern="[0-9]*">
                   </td>
                   <td class="td-followup">
                     <input type="date" id="newFollowUpDate" class="inline-add-input">

@@ -8,59 +8,59 @@ const defaultSeedJobs = [
   {
     id: "job-101",
     company: "Apple Inc.",
-    role: "Senior iOS / Swift Platform Engineer",
+    role: "Automation Tester",
     appliedDate: "2026-09-15",
     source: "LinkedIn",
     status: "Applied",
-    contact: "Rachel Adams (Talent Partner)",
+    contact: "9876543210",
     followUpDate: "2026-09-24",
-    notes: "Submitted portfolio with Swift, Metal, and UI architecture.",
+    notes: "Submitted portfolio with automation frameworks and test plans.",
     updatedAt: new Date().toISOString()
   },
   {
     id: "job-102",
     company: "Microsoft",
-    role: "Senior Cloud Architect",
+    role: "Manual Tester",
     appliedDate: "2026-09-12",
     source: "Referral",
     status: "Referral",
-    contact: "David Kim (Partner Eng Lead)",
+    contact: "9812345678",
     followUpDate: "2026-09-22",
-    notes: "Internal referral through Azure core team.",
+    notes: "Internal referral through QA core team.",
     updatedAt: new Date().toISOString()
   },
   {
     id: "job-103",
     company: "Amazon Web Services",
-    role: "Software Development Engineer II",
+    role: "Both Functional",
     appliedDate: "2026-09-05",
     source: "Company Site",
     status: "Interviewing",
-    contact: "Jessica Taylor (Tech Recruiter)",
+    contact: "9123456780",
     followUpDate: "2026-09-21",
-    notes: "Passed initial round. Final loop scheduled next week.",
+    notes: "Passed initial round. Technical testing round scheduled next week.",
     updatedAt: new Date().toISOString()
   },
   {
     id: "job-104",
     company: "Spotify",
-    role: "Staff Frontend Engineer",
+    role: "API Tester",
     appliedDate: "2026-08-25",
     source: "LinkedIn",
     status: "Selected",
-    contact: "Johan Lind (Head of Talent)",
+    contact: "9988776655",
     followUpDate: "2026-09-25",
-    notes: "Formal offer package received! Reviewing equity grant.",
+    notes: "Formal offer package received! Reviewing compensation package.",
     updatedAt: new Date().toISOString()
   },
   {
     id: "job-105",
     company: "Meta Platforms",
-    role: "Production Engineer - Systems",
+    role: "QA / SDET",
     appliedDate: "2026-08-15",
     source: "Indeed",
     status: "Rejected",
-    contact: "Global Talent Team",
+    contact: "9112233445",
     followUpDate: "2026-08-30",
     notes: "Role filled internally. Advised to reapply next cycle.",
     updatedAt: new Date().toISOString()
@@ -129,6 +129,7 @@ const elements = {
   inlineAddRow: document.getElementById('inlineAddRow'),
   newCompany: document.getElementById('newCompany'),
   newRole: document.getElementById('newRole'),
+  newRoleCustom: document.getElementById('newRoleCustom'),
   newAppliedDate: document.getElementById('newAppliedDate'),
   newSource: document.getElementById('newSource'),
   newStatus: document.getElementById('newStatus'),
@@ -448,12 +449,45 @@ function bindEvents() {
     });
   }
 
-  // Dismiss status dropdowns
+  // Role dropdown change -> toggle custom role input
+  if (elements.newRole) {
+    elements.newRole.addEventListener('change', () => {
+      if (elements.newRoleCustom) {
+        if (elements.newRole.value === 'Other') {
+          elements.newRoleCustom.style.display = 'block';
+          elements.newRoleCustom.focus();
+        } else {
+          elements.newRoleCustom.style.display = 'none';
+        }
+      }
+    });
+  }
+
+  // Contact number-only validation
+  if (elements.newContact) {
+    elements.newContact.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    });
+    elements.newContact.addEventListener('keydown', (e) => {
+      if (['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', 'Escape'].includes(e.key) ||
+          e.ctrlKey || e.metaKey) {
+        return;
+      }
+      if (!/^\d$/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
+  }
+
+  // Dismiss status dropdowns on outside click, window scroll, and resize
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.status-pill-container')) {
+    if (!e.target.closest('.status-dropdown-menu') && !e.target.closest('.status-pill')) {
       closeAllStatusDropdowns();
     }
   });
+
+  window.addEventListener('scroll', closeAllStatusDropdowns, { passive: true, capture: true });
+  window.addEventListener('resize', closeAllStatusDropdowns, { passive: true });
 }
 
 function updateSortHeaderIndicators() {
@@ -687,7 +721,7 @@ function createJobRowElement(job) {
 
     <!-- Role (Inline editable) -->
     <td class="td-role">
-      <span class="role-text editable-cell text-truncate" data-field="role" title="${escapeHtml(job.role || '—')}">${escapeHtml(job.role || '—')}</span>
+      <span class="role-text editable-cell text-truncate" data-field="role" data-type="role-select" title="${escapeHtml(job.role || '—')}">${escapeHtml(job.role || '—')}</span>
     </td>
 
     <!-- Applied Date (Inline editable date) -->
@@ -845,6 +879,74 @@ function startInlineCellEdit(cellElement, job) {
       if (src === currentValue) opt.selected = true;
       input.appendChild(opt);
     });
+  } else if (type === 'role-select') {
+    input = document.createElement('select');
+    input.className = 'inline-cell-input';
+    const roles = [
+      'Manual Tester',
+      'Automation Tester',
+      'Both Functional',
+      'API Tester',
+      'QA / SDET',
+      'Software Engineer',
+      'Other'
+    ];
+    if (currentValue && !roles.includes(currentValue) && currentValue !== '—') {
+      const customOpt = document.createElement('option');
+      customOpt.value = currentValue;
+      customOpt.textContent = currentValue;
+      customOpt.selected = true;
+      input.appendChild(customOpt);
+    }
+    roles.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r;
+      opt.textContent = r;
+      if (r === currentValue) opt.selected = true;
+      input.appendChild(opt);
+    });
+
+    input.addEventListener('change', () => {
+      if (input.value === 'Other') {
+        const textInput = document.createElement('input');
+        textInput.type = 'text';
+        textInput.className = 'inline-cell-input';
+        textInput.placeholder = 'Enter custom role...';
+        textInput.value = '';
+        input.parentNode.replaceChild(textInput, input);
+        textInput.focus();
+        textInput.addEventListener('blur', () => {
+          commitInlineCellEdit(textInput.value);
+        });
+        textInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            commitInlineCellEdit(textInput.value);
+          } else if (e.key === 'Escape') {
+            cancelInlineCellEdit();
+          }
+        });
+      }
+    });
+  } else if (field === 'contact') {
+    input = document.createElement('input');
+    input.type = 'tel';
+    input.inputMode = 'numeric';
+    input.className = 'inline-cell-input';
+    input.placeholder = 'Numbers only';
+    input.value = (currentValue || '').replace(/\D/g, '');
+    input.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    });
+    input.addEventListener('keydown', (e) => {
+      if (['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', 'Escape'].includes(e.key) ||
+          e.ctrlKey || e.metaKey) {
+        return;
+      }
+      if (!/^\d$/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
   } else {
     input = document.createElement('input');
     input.type = 'text';
@@ -876,7 +978,10 @@ async function commitInlineCellEdit(newValue) {
   const { element, jobId, field, originalValue } = state.activeEditCell;
   const input = element.nextSibling;
 
-  const finalValue = newValue !== undefined ? newValue.trim() : (input ? input.value.trim() : originalValue);
+  let finalValue = newValue !== undefined ? newValue.trim() : (input ? input.value.trim() : originalValue);
+  if (field === 'contact') {
+    finalValue = finalValue.replace(/\D/g, '');
+  }
 
   if (input && input.parentNode) {
     input.parentNode.removeChild(input);
@@ -924,6 +1029,9 @@ function openStatusDropdown(jobId) {
   const container = document.getElementById(`statusContainer-${jobId}`);
   if (!container) return;
 
+  const pill = container.querySelector('.status-pill');
+  if (!pill) return;
+
   state.activeDropdownJobId = jobId;
 
   const statuses = [
@@ -954,7 +1062,26 @@ function openStatusDropdown(jobId) {
     });
   });
 
-  container.appendChild(menu);
+  // Calculate coordinates relative to viewport (Portal into document.body)
+  const rect = pill.getBoundingClientRect();
+  const menuEstimatedHeight = 195;
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+
+  let top;
+  if (spaceBelow < menuEstimatedHeight && spaceAbove > spaceBelow) {
+    top = Math.max(8, rect.top - menuEstimatedHeight - 4);
+  } else {
+    top = rect.bottom + 4;
+  }
+
+  const left = Math.max(8, Math.min(rect.left, window.innerWidth - 165));
+
+  menu.style.top = `${top}px`;
+  menu.style.left = `${left}px`;
+  menu.style.minWidth = `${Math.max(rect.width, 145)}px`;
+
+  document.body.appendChild(menu);
 }
 
 function closeAllStatusDropdowns() {
@@ -992,26 +1119,50 @@ async function handleAddNewJob() {
     return;
   }
 
+  let roleVal = 'Manual Tester';
+  if (elements.newRole) {
+    if (elements.newRole.value === 'Other' && elements.newRoleCustom && elements.newRoleCustom.value.trim()) {
+      roleVal = elements.newRoleCustom.value.trim();
+    } else {
+      roleVal = elements.newRole.value || 'Manual Tester';
+    }
+  }
+
+  const contactVal = elements.newContact ? elements.newContact.value.trim().replace(/\D/g, '') : '';
+
   const newJob = {
     id: `job-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
     company: company,
-    role: (elements.newRole ? elements.newRole.value.trim() : '') || 'Software Engineer',
+    role: roleVal,
     appliedDate: (elements.newAppliedDate ? elements.newAppliedDate.value : '') || new Date().toISOString().split('T')[0],
     source: elements.newSource ? elements.newSource.value : 'LinkedIn',
     status: elements.newStatus ? elements.newStatus.value : 'Applied',
-    contact: elements.newContact ? elements.newContact.value.trim() : '',
+    contact: contactVal,
     followUpDate: elements.newFollowUpDate ? elements.newFollowUpDate.value : '',
     notes: elements.newNotes ? elements.newNotes.value.trim() : '',
     updatedAt: new Date().toISOString()
   };
 
   state.jobs.unshift(newJob);
+
+  // If active filter doesn't match new job's status, reset filter to 'All' so new job is immediately visible
+  if (state.currentFilter !== 'All' && state.currentFilter !== newJob.status) {
+    state.currentFilter = 'All';
+    document.querySelectorAll('.filter-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.filter === 'All');
+    });
+  }
+
   saveToStorage();
   renderAll();
 
   // Reset inputs
   if (elements.newCompany) elements.newCompany.value = '';
-  if (elements.newRole) elements.newRole.value = '';
+  if (elements.newRole) elements.newRole.value = 'Manual Tester';
+  if (elements.newRoleCustom) {
+    elements.newRoleCustom.value = '';
+    elements.newRoleCustom.style.display = 'none';
+  }
   if (elements.newAppliedDate) elements.newAppliedDate.value = new Date().toISOString().split('T')[0];
   if (elements.newContact) elements.newContact.value = '';
   if (elements.newFollowUpDate) elements.newFollowUpDate.value = '';

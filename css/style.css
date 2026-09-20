@@ -664,6 +664,7 @@ body {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+  min-height: 240px;
 }
 
 .table-responsive {
@@ -744,6 +745,10 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.jobs-table td.td-status {
+  overflow: visible;
 }
 
 .jobs-table tbody tr {
@@ -888,22 +893,43 @@ input[type="checkbox"] {
 }
 .pill-rejected .pill-dot { background: var(--status-rejected); }
 
-/* Quick Status Selector Dropdown */
+/* Quick Status Selector Dropdown (Fixed Portal) */
 .status-dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 4px;
+  position: fixed;
   background: var(--bg-surface);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-lg);
-  z-index: 100;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 16px -4px rgba(0, 0, 0, 0.4);
+  z-index: 999999;
   display: flex;
   flex-direction: column;
-  min-width: 140px;
-  padding: 4px;
+  min-width: 150px;
+  padding: 5px;
   overflow: hidden;
+  animation: dropdown-pop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdown-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Role select in quick add */
+.role-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.role-custom-input {
+  width: 100%;
 }
 
 .status-dropdown-item {
@@ -1217,7 +1243,10 @@ input[type="checkbox"] {
   align-items: center;
   gap: 0.75rem;
   min-width: 280px;
-  max-width: 400px;
+  max-width: min(440px, calc(100vw - 2.5rem));
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
   animation: toast-slide-down 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
@@ -1260,9 +1289,13 @@ input[type="checkbox"] {
 .toast-message {
   font-size: 0.83rem;
   color: var(--text-primary);
-  flex-grow: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   font-weight: 500;
   line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .toast-action {

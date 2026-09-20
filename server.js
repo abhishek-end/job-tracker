@@ -24,35 +24,35 @@ const defaultSeedJobs = [
   {
     id: "job-101",
     company: "Stripe",
-    role: "Senior Frontend Engineer",
+    role: "Automation Tester",
     appliedDate: "2026-09-12",
     source: "Referral",
     status: "Interviewing",
-    contact: "Elena Vance (Recruiter)",
+    contact: "9876543210",
     followUpDate: "2026-09-22",
-    notes: "Passed system design round. Final architectural loop scheduled next Tuesday.",
+    notes: "Passed test framework round. Final architectural loop scheduled next Tuesday.",
     updatedAt: new Date().toISOString()
   },
   {
     id: "job-102",
     company: "Google",
-    role: "Staff Software Engineer",
+    role: "Manual Tester",
     appliedDate: "2026-09-08",
     source: "Company Site",
     status: "Interviewing",
-    contact: "Marcus Brody (Eng Manager)",
+    contact: "9812345678",
     followUpDate: "2026-09-20",
-    notes: "Completed round 2 coding interview. Follow-up on hiring committee decision.",
+    notes: "Completed round 2 test case interview. Follow-up on hiring committee decision.",
     updatedAt: new Date().toISOString()
   },
   {
     id: "job-103",
     company: "Figma",
-    role: "Product Engineer - Collaboration",
+    role: "Both Functional",
     appliedDate: "2026-08-28",
     source: "LinkedIn",
     status: "Selected",
-    contact: "Sarah Connor (HR Director)",
+    contact: "9123456780",
     followUpDate: "2026-09-25",
     notes: "Offer letter received! Reviewing equity package and benefits before signing.",
     updatedAt: new Date().toISOString()
@@ -60,11 +60,11 @@ const defaultSeedJobs = [
   {
     id: "job-104",
     company: "Anthropic",
-    role: "AI Frontend & Tooling Specialist",
+    role: "API Tester",
     appliedDate: "2026-09-14",
     source: "Referral",
     status: "Referral",
-    contact: "Dr. Aris Thorne (Team Lead)",
+    contact: "9988776655",
     followUpDate: "2026-09-21",
     notes: "Referred by former colleague. Application fast-tracked to recruiter phone screen.",
     updatedAt: new Date().toISOString()
@@ -72,49 +72,13 @@ const defaultSeedJobs = [
   {
     id: "job-105",
     company: "Airbnb",
-    role: "Senior UI/UX Engineer",
+    role: "QA / SDET",
     appliedDate: "2026-09-15",
     source: "LinkedIn",
     status: "Applied",
-    contact: "Devon Zhao (Talent Acquisition)",
+    contact: "9112233445",
     followUpDate: "2026-09-24",
-    notes: "Submitted portfolio featuring design system work. Automated confirmation received.",
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "job-106",
-    company: "Vercel",
-    role: "Developer Experience Engineer",
-    appliedDate: "2026-09-17",
-    source: "Company Site",
-    status: "Applied",
-    contact: "Jordan Lee",
-    followUpDate: "2026-09-26",
-    notes: "Applied directly through careers page after open-source contribution.",
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "job-107",
-    company: "Netflix",
-    role: "Senior Platform Engineer",
-    appliedDate: "2026-08-15",
-    source: "Indeed",
-    status: "Rejected",
-    contact: "Talent Team",
-    followUpDate: "2026-08-30",
-    notes: "Role closed internally due to headcount shift. Reapply next quarter.",
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "job-108",
-    company: "Datadog",
-    role: "Full Stack Engineer - Cloud Apps",
-    appliedDate: "2026-09-10",
-    source: "Referral",
-    status: "Applied",
-    contact: "Maya Lin",
-    followUpDate: "2026-09-23",
-    notes: "Internal referral submitted. Waiting on recruiter outreach.",
+    notes: "Submitted portfolio featuring automation work. Automated confirmation received.",
     updatedAt: new Date().toISOString()
   }
 ];
@@ -201,11 +165,11 @@ app.post('/api/jobs', (req, res) => {
   const newJob = {
     id: req.body.id || `job-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
     company: company.trim(),
-    role: (role || 'Software Engineer').trim(),
+    role: (role || 'Manual Tester').trim(),
     appliedDate: appliedDate || new Date().toISOString().split('T')[0],
     source: source || 'LinkedIn',
     status: finalStatus,
-    contact: (contact || '').trim(),
+    contact: (contact || '').toString().trim().replace(/\D/g, ''),
     followUpDate: followUpDate || '',
     notes: (notes || '').trim(),
     updatedAt: new Date().toISOString()
@@ -232,7 +196,11 @@ app.put('/api/jobs/:id', (req, res) => {
   
   allowedFields.forEach(field => {
     if (req.body[field] !== undefined) {
-      current[field] = req.body[field];
+      if (field === 'contact') {
+        current[field] = req.body[field].toString().replace(/\D/g, '');
+      } else {
+        current[field] = req.body[field];
+      }
     }
   });
 
